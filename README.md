@@ -58,7 +58,3 @@ The notebooks demonstrate the ability of PINNs to accurately predict strain fiel
 ## Contributing
 
 Contributions to improve the implementation or extend the functionality are welcome. Please feel free to submit pull requests or open issues for discussion.
-
-## License
-
-[MIT License](LICENSE)
