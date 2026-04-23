@@ -1,0 +1,25 @@
+# Requirements for PINNs project (pip)
+# Note: For best results with PyTorch prefer installing via conda or follow
+# the instructions at https://pytorch.org/get-started/locally/ for your OS/hardware.
+
+numpy<2
+scipy
+matplotlib
+jupyterlab
+notebook
+ipykernel
+pandas
+scikit-learn
+Pillow
+cython
+h5py
+scikit-image
+# PyTorch (CPU): if you want a specific CUDA/Metal build, install from pytorch.org
+torch
+torchvision
+torchaudio
+
+tqdm
+seaborn
+imageio
+jupyter_contrib_nbextensions

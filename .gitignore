@@ -1,0 +1,23 @@
+# Data (too large for git – use DVC or external storage)
+data/
+
+# Generated outputs
+outputs/
+
+# Legacy code
+_legacy/
+_legacy_codes/
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+.venv/
+env/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
