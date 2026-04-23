@@ -1,0 +1,28 @@
+name: pinns
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pip
+  - "numpy<2"
+  - scipy
+  - matplotlib
+  - jupyterlab
+  - notebook
+  - ipykernel
+  - pandas
+  - scikit-learn
+  - pillow
+  - cython
+  - h5py
+  - scikit-image
+  - pytorch
+  - torchvision
+  - torchaudio
+  - pip:
+    - tqdm
+    - seaborn
+    - imageio
+    - jupyter_contrib_nbextensions

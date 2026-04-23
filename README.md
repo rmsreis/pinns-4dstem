@@ -1,60 +1,65 @@
-# Physics-Informed Neural Networks (PINNs) for Strain Field Prediction
+# Physics-Informed Neural Networks (PINNs) for 4D-STEM Strain Mapping
 
-This repository contains Jupyter notebooks demonstrating the use of Physics-Informed Neural Networks (PINNs) for predicting strain fields in materials science applications.
+This repository contains code and Jupyter notebooks demonstrating the use of Physics-Informed Neural Networks (PINNs) applied to 4D-STEM strain mapping in materials science applications.
 
-## Contents
+## Quick Start
 
-1. `pinns-strain-simple.ipynb`: A simplified implementation of PINNs for strain field prediction.
-2. `pinns-strain-complex.ipynb`: A more complex implementation with additional features and visualizations.
+1. Create the conda environment (recommended):
+   ```bash
+   conda env create -f environment-pinns.yml
+   conda activate pinns
+   ```
+
+2. (Optional) Register the environment as a Jupyter kernel so notebooks can use it:
+   ```bash
+   python -m ipykernel install --user --name=pinns --display-name "pinns (Python 3.10)"
+   ```
+
+3. Run the main notebook (headless execution to HTML):
+   ```bash
+   jupyter nbconvert --to html pinns-strain-05.ipynb --output pinns-strain-05.html --execute
+   ```
+
+## Files of Interest
+
+- `pinns-strain-05.ipynb` — Main notebook used for experiments and visualizations.
+- `pinns_dpc_pn_sota.py` — State-of-the-art DPC PN-junction modeling.
+- `environment-pinns.yml` — Conda environment template (recommended for development).
+- `requirements.txt` — Pip-style dependency list.
+
+*Legacy files (in `_legacy/`):*
+- `environment-pinned.yml` — Pinned export for reproducible fallback.
+- `requirements-locked.txt` — Locked pip requirements.
 
 ## Features
 
-- Implementation of a PINN model for strain field prediction
-- Training process with loss visualization
-- Comparison of PINN predictions with ground truth
-- Animation of the training process
-- Demonstration of PINN advantage with sparse data
-- Metrics calculation for model evaluation
+- Implementation of PINN models for 4D-STEM strain field prediction.
+- Training processes with loss visualization.
+- Comparison of PINN predictions with ground truth.
+- Metrics calculation for model evaluation.
+- Application in specific physical representations (e.g., PN-junctions).
 
 ## Requirements
 
-- Python 3.9+
-- PyTorch
-- NumPy
-- Matplotlib
-- SciPy
+- Python 3.9+ / 3.10
+- PyTorch (Platform-specific build recommended: https://pytorch.org/get-started/locally/)
+- NumPy, Matplotlib, SciPy, Jupyter
 
 ## Usage
 
 1. Clone the repository:
-   ```
-   git clone https://github.com/yourusername/pinns-strain-prediction.git
+   ```bash
+   git clone https://github.com/rmsreis/pinns-4dstem.git
    ```
 
-2. Install the required dependencies:
-   ```
-   pip install torch numpy matplotlib scipy
-   ```
+2. Set up the environment as detailed in the Quick Start section.
 
 3. Open and run the Jupyter notebooks:
-   ```
+   ```bash
    jupyter notebook
    ```
 
-## Key Functions
+## Reproducibility Notes
 
-- `StrainPINN`: Neural network model for strain prediction
-- `strain_components`: Calculates strain components from the PINN output
-- `pinn_loss`: Defines the loss function for training the PINN
-- `train_pinn`: Trains the PINN model
-- `visualize_results`: Creates visualizations of the PINN predictions
-- `create_animation`: Generates an animation of the training process
-- `demonstrate_sparse_data_advantage`: Shows the advantage of PINNs with limited data
-
-## Results
-
-The notebooks demonstrate the ability of PINNs to accurately predict strain fields, even with limited data. Visualizations and metrics are provided to evaluate the model's performance.
-
-## Contributing
-
-Contributions to improve the implementation or extend the functionality are welcome. Please feel free to submit pull requests or open issues for discussion.
+- For PyTorch, prefer installing the platform-specific build depending on if using CUDA or Apple Metal (`mps`).
+- Make sure to activate the specified `pinns` conda environment before running experiments.
