@@ -1,65 +1,93 @@
 # Physics-Informed Neural Networks (PINNs) for 4D-STEM Strain Mapping
 
-This repository contains code and Jupyter notebooks demonstrating the use of Physics-Informed Neural Networks (PINNs) applied to 4D-STEM strain mapping in materials science applications.
+
+## Overview
+
+We develop a PINN architecture that embeds elastic equilibrium and Saint-Venant compatibility into the training loss via automatic differentiation. The backbone is a sine-activated residual network (SIREN) with residual-based adaptive collocation refinement (RAR). Two Bayesian variants (MC Dropout and mean-field variational inference) provide per-pixel epistemic uncertainty maps.
+
+### Key results (180 × 400 px experimental 4D-STEM strain map)
+
+| Sampling | Train pts | R² (ε_xx) | RMSE (ε_xx) | MAE (ε_xx) | R² avg |
+|----------|-----------|-----------|-------------|------------|--------|
+|  1 %     |   720     |   0.36    |   4.2×10⁻² |  3.0×10⁻² |  0.38  |
+|  5 %     | 3,600     |   0.74    |   2.7×10⁻² |  2.0×10⁻² |  0.73  |
+| 10 %     | 7,200     |   0.75    |   2.6×10⁻² |  2.0×10⁻² |  0.73  |
+| 25 %     | 18,000    |   0.81    |   2.3×10⁻² |  1.7×10⁻² |  0.79  |
+| 50 %     | 36,000    |   0.78    |   2.4×10⁻² |  1.8×10⁻² |  0.77  |
+| 75 %     | 54,000    |   0.85    |   2.1×10⁻² |  1.5×10⁻² |  0.83  |
 
 ## Quick Start
 
-1. Create the conda environment (recommended):
+1. Create the conda environment:
    ```bash
    conda env create -f environment-pinns.yml
    conda activate pinns
    ```
 
-2. (Optional) Register the environment as a Jupyter kernel so notebooks can use it:
+2. (Optional) Register as a Jupyter kernel:
    ```bash
    python -m ipykernel install --user --name=pinns --display-name "pinns (Python 3.10)"
    ```
 
-3. Run the main notebook (headless execution to HTML):
+3. Run the main notebook:
    ```bash
-   jupyter nbconvert --to html pinns-strain-05.ipynb --output pinns-strain-05.html --execute
+   jupyter notebook pinns-strain-sota-adaptive-2.ipynb
    ```
 
-## Files of Interest
+   To export paper figures (runs Cell 24 after training):
+   ```bash
+   jupyter nbconvert --to notebook --execute pinns-strain-sota-adaptive-2.ipynb \
+       --output pinns-strain-sota-adaptive-2-executed.ipynb
+   ```
 
-- `pinns-strain-05.ipynb` — Main notebook used for experiments and visualizations.
-- `pinns_dpc_pn_sota.py` — State-of-the-art DPC PN-junction modeling.
-- `environment-pinns.yml` — Conda environment template (recommended for development).
-- `requirements.txt` — Pip-style dependency list.
+## Repository layout
 
-*Legacy files (in `_legacy/`):*
-- `environment-pinned.yml` — Pinned export for reproducible fallback.
-- `requirements-locked.txt` — Locked pip requirements.
+```
+pinns-4dstem/
+├── pinns-strain-sota-adaptive-2.ipynb   ← main notebook (training + paper figures)
+├── data/
+│   ├── strain_exx.npy                   ← 180×400 experimental ε_xx map
+│   ├── strain_eyy.npy
+│   └── strain_exy.npy
+├── outputs/sota_adaptive-2/             ← generated figures and metric CSVs
+├── paper/
+│   ├── main.tex                         ← manuscript (Microscopy & Microanalysis template)
+│   ├── reference.bib
+│   └── Fig/                             ← publication-ready figures (300 dpi)
+├── environment-pinns.yml
+└── requirements.txt
+```
 
-## Features
+## Architecture at a glance
 
-- Implementation of PINN models for 4D-STEM strain field prediction.
-- Training processes with loss visualization.
-- Comparison of PINN predictions with ground truth.
-- Metrics calculation for model evaluation.
-- Application in specific physical representations (e.g., PN-junctions).
+- **Backbone**: SIREN (6 hidden layers, width 128, ω₀=1.0, skip connections) — 29,396 parameters
+- **Loss**: data MSE + physics loss (elastic equilibrium + Saint-Venant compatibility) with exponential ramp on physics weight
+- **Adaptive refinement (RAR)**: from epoch 2,000, every 500 epochs add the top-10% highest-residual collocation points
+- **Bayesian variants**: MC Dropout (p=0.1, T=150) and mean-field variational inference (T=150)
+- **Training**: Adam, lr=1×10⁻³, step decay 0.95/500 epochs, early stopping (patience 400), max 5,000 epochs
+
+## Hardware
+
+Tested on Apple Silicon (MPS) — ~13 ms/epoch. Inference over the full 72,000-pixel grid: < 1 s.
 
 ## Requirements
 
-- Python 3.9+ / 3.10
-- PyTorch (Platform-specific build recommended: https://pytorch.org/get-started/locally/)
-- NumPy, Matplotlib, SciPy, Jupyter
+- Python 3.10
+- PyTorch (MPS / CUDA / CPU)
+- NumPy, Matplotlib, SciPy, tqdm, pandas, Jupyter
 
-## Usage
+## Citation
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/rmsreis/pinns-4dstem.git
-   ```
+```bibtex
+@article{dosreis2026pinns4dstem,
+  title   = {Physics-Informed Neural Networks for Sparse Strain-Field Reconstruction in 4D-STEM},
+  author  = {dos Reis, Roberto and dos Santos, Gabriel T. and Liu, Yukun and Dravid, Vinayak P.},
+  journal = {Microscopy and Microanalysis},
+  year    = {2026},
+  doi     = {DOI HERE}
+}
+```
 
-2. Set up the environment as detailed in the Quick Start section.
+## Acknowledgements
 
-3. Open and run the Jupyter notebooks:
-   ```bash
-   jupyter notebook
-   ```
-
-## Reproducibility Notes
-
-- For PyTorch, prefer installing the platform-specific build depending on if using CUDA or Apple Metal (`mps`).
-- Make sure to activate the specified `pinns` conda environment before running experiments.
+Supported in part by NSF \#1636933 and \#1920920. Facilities at the Northwestern NUANCE Center.
