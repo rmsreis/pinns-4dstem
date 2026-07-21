@@ -90,7 +90,7 @@ Bayesian variants complete in ~10 minutes on a laptop.
 - PyTorch (MPS / CUDA / CPU)
 - NumPy, Matplotlib, SciPy, tqdm, pandas, Jupyter
 
-## Citation
+<!-- ## Citation
 
 ```bibtex
 @article{dosreis2026pinns4dstem,
@@ -100,8 +100,4 @@ Bayesian variants complete in ~10 minutes on a laptop.
   year    = {2026},
   doi     = {DOI HERE}
 }
-```
-
-## Acknowledgements
-
-Supported in part by NSF \#1636933 and \#1920920. Facilities at the Northwestern NUANCE Center.
+``` -->
