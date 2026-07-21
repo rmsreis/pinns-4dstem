@@ -8,6 +8,9 @@ outputs/
 _legacy/
 _legacy_codes/
 
+# Manuscript (kept local only, not pushed to the remote)
+paper/
+
 # macOS
 .DS_Store
 
