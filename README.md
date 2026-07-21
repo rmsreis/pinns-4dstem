@@ -40,11 +40,17 @@ We develop a PINN architecture that embeds elastic equilibrium and Saint-Venant 
        --output pinns-strain-sota-adaptive-2-executed.ipynb
    ```
 
+4. (Optional) Explore the trained models interactively in 3D — layer stack, field surfaces for all strain/rotation components, first-layer gratings, and training evolution across sampling fractions (1–75%), each in a napari window:
+   ```bash
+   jupyter notebook pinn-viz3d.ipynb
+   ```
+
 ## Repository layout
 
 ```
 pinns-4dstem/
 ├── pinns-strain-sota-adaptive-2.ipynb   ← main notebook (training + paper figures)
+├── pinn-viz3d.ipynb                     ← interactive 3D explainability views (napari)
 ├── data/
 │   ├── strain_exx.npy                   ← 180×400 experimental ε_xx map
 │   ├── strain_eyy.npy

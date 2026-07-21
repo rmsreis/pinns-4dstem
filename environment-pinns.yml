@@ -26,3 +26,5 @@ dependencies:
     - seaborn
     - imageio
     - jupyter_contrib_nbextensions
+    - napari
+    - pyqt6

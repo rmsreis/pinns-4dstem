@@ -23,3 +23,7 @@ tqdm
 seaborn
 imageio
 jupyter_contrib_nbextensions
+
+# interactive 3D viewer used by pinn-viz3d.ipynb
+napari
+pyqt6
