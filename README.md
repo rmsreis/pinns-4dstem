@@ -7,14 +7,17 @@ We develop a PINN architecture that embeds elastic equilibrium and Saint-Venant 
 
 ### Key results (180 × 400 px experimental 4D-STEM strain map)
 
+Specimen: PbGeSnSe₁.₅Te₁.₅, a domain-structured IV–VI high-entropy thermoelectric (Liu et al.,
+*J. Am. Chem. Soc.* 2024, 146, 12620–12635); the chevron strain bands are ferroelastic domains.
+
 | Sampling | Train pts | R² (ε_xx) | RMSE (ε_xx) | MAE (ε_xx) | R² avg |
 |----------|-----------|-----------|-------------|------------|--------|
-|  1 %     |   720     |   0.36    |   4.2×10⁻² |  3.0×10⁻² |  0.38  |
-|  5 %     | 3,600     |   0.74    |   2.7×10⁻² |  2.0×10⁻² |  0.73  |
-| 10 %     | 7,200     |   0.75    |   2.6×10⁻² |  2.0×10⁻² |  0.73  |
-| 25 %     | 18,000    |   0.81    |   2.3×10⁻² |  1.7×10⁻² |  0.79  |
-| 50 %     | 36,000    |   0.78    |   2.4×10⁻² |  1.8×10⁻² |  0.77  |
-| 75 %     | 54,000    |   0.85    |   2.1×10⁻² |  1.5×10⁻² |  0.83  |
+|  1 %     |   720     |   0.44    |   3.9×10⁻² |  2.9×10⁻² |  0.46  |
+|  5 %     | 3,600     |   0.72    |   2.8×10⁻² |  2.0×10⁻² |  0.71  |
+| 10 %     | 7,200     |   0.80    |   2.3×10⁻² |  1.7×10⁻² |  0.78  |
+| 25 %     | 18,000    |   0.84    |   2.1×10⁻² |  1.5×10⁻² |  0.83  |
+| 50 %     | 36,000    |   0.85    |   2.0×10⁻² |  1.5×10⁻² |  0.84  |
+| 75 %     | 54,000    |   0.86    |   2.0×10⁻² |  1.5×10⁻² |  0.85  |
 
 ## Quick Start
 
@@ -40,7 +43,7 @@ We develop a PINN architecture that embeds elastic equilibrium and Saint-Venant 
        --output pinns-strain-sota-adaptive-2-executed.ipynb
    ```
 
-4. (Optional) Explore the trained models interactively in 3D — layer stack, field surfaces for all strain/rotation components, first-layer gratings, and training evolution across sampling fractions (1–75%), each in a napari window:
+4. (Optional) Explore the trained models interactively in 3D with `napari` — layer stack, field surfaces for all strain/rotation components, first-layer gratings, and training evolution (both the output field and, jointly, per-layer activity + physics residuals) across sampling fractions (1–75%), each in its own napari window:
    ```bash
    jupyter notebook pinn-viz3d.ipynb
    ```
@@ -55,26 +58,31 @@ pinns-4dstem/
 │   ├── strain_exx.npy                   ← 180×400 experimental ε_xx map
 │   ├── strain_eyy.npy
 │   └── strain_exy.npy
-├── outputs/sota_adaptive-2/             ← generated figures and metric CSVs
-├── paper/
-│   ├── main.tex                         ← manuscript (Microscopy & Microanalysis template)
-│   ├── reference.bib
-│   └── Fig/                             ← publication-ready figures (300 dpi)
+├── outputs/
+│   ├── sota_adaptive-2/                 ← generated figures and metric CSVs
+│   └── viz3d/                           ← cached per-fraction checkpoints + training snapshots
 ├── environment-pinns.yml
 └── requirements.txt
 ```
 
+`data/` and `outputs/` are git-ignored (regenerated locally / too large for git). The manuscript
+(`paper/`: `main.tex`, `reference.bib`, `Fig/`) is also kept local only and is not part of this
+repository — it isn't tracked in git history and won't appear in a fresh clone.
+
 ## Architecture at a glance
 
-- **Backbone**: SIREN (6 hidden layers, width 128, ω₀=1.0, skip connections) — 29,396 parameters
-- **Loss**: data MSE + physics loss (elastic equilibrium + Saint-Venant compatibility) with exponential ramp on physics weight
-- **Adaptive refinement (RAR)**: from epoch 2,000, every 500 epochs add the top-10% highest-residual collocation points
-- **Bayesian variants**: MC Dropout (p=0.1, T=150) and mean-field variational inference (T=150)
-- **Training**: Adam, lr=1×10⁻³, step decay 0.95/500 epochs, early stopping (patience 400), max 5,000 epochs
+- **Backbone**: SIREN (input sine layer + 4 hidden sine layers, width 128, ω₀=30, skip projection into the 3rd hidden layer) — 83,460 parameters. ω₀=1 underfits badly (R²≤0.05 at any sampling fraction); ω₀=30 is required.
+- **Loss**: data MSE + physics loss (elastic equilibrium + Saint-Venant compatibility), each scale-normalised against a frozen EMA of its own residual (frozen after 200 steps) and combined with an exponential ramp on the physics weight, λ(t)=1−e^(−t/500)
+- **Adaptive refinement (RAR)**: from epoch 2,000, every 500 epochs add the top-10% highest-residual collocation points (pool capped at 5×)
+- **Bayesian variants**: MC Dropout (p=0.05 on hidden activations only, T=150) and mean-field variational inference (prior matched to the SIREN init scale, T=150)
+- **Training**: Adam, lr=1×10⁻³, step decay 0.95/500 epochs, gradient clipping at 1.0, early stopping (patience 300), max 5,000 epochs
 
 ## Hardware
 
-Tested on Apple Silicon (MPS) — ~13 ms/epoch. Inference over the full 72,000-pixel grid: < 1 s.
+Tested on Apple Silicon (MPS) — ≈35 ms/epoch, 13–26 s total training per sampling fraction (early
+stopping terminates most runs well under the 5,000-epoch budget). Inference over the full
+72,000-pixel grid: < 1 s. The full six-fraction study, ablations, classical baselines and both
+Bayesian variants complete in ~10 minutes on a laptop.
 
 ## Requirements
 
@@ -87,7 +95,7 @@ Tested on Apple Silicon (MPS) — ~13 ms/epoch. Inference over the full 72,000-p
 ```bibtex
 @article{dosreis2026pinns4dstem,
   title   = {Physics-Informed Neural Networks for Sparse Strain-Field Reconstruction in 4D-STEM},
-  author  = {dos Reis, Roberto and dos Santos, Gabriel T. and Liu, Yukun and Dravid, Vinayak P.},
+  author  = {dos Reis, Roberto and dos Santos, Gabriel T. and Liu, Yukun and Hu, Xiaobing and Dravid, Vinayak P.},
   journal = {Microscopy and Microanalysis},
   year    = {2026},
   doi     = {DOI HERE}
