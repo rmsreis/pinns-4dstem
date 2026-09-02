@@ -11,6 +11,9 @@ _legacy_codes/
 # Manuscript (kept local only, not pushed to the remote)
 paper/
 
+# Curvenote presentation (kept local only, not pushed to the remote)
+presentation/
+
 # macOS
 .DS_Store
 
